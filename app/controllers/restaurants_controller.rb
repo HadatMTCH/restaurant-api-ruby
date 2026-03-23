@@ -1,32 +1,27 @@
 class RestaurantsController < ApplicationController
-  before_action :set_restaurant, only: [ :show, :update, :destroy ]
+  before_action :set_restaurant, only: [ :update, :destroy ]
 
   # GET /restaurants
   def index
     limit = [ params.fetch(:limit, 50).to_i, 100 ].min
-
-    # Safely extract and sanitize the cursor to pure integers only
-    raw_cursor = params[:cursor].presence || params[:last_id].presence
-    cursor = raw_cursor.to_i if raw_cursor && raw_cursor.to_s.match?(/\A\d+\z/)
-
+    cursor_param = params[:cursor] || params[:last_id]
     query = Restaurant.order(id: :desc)
-    query = query.where("id < ?", cursor) if cursor
+    if cursor_param.present?
+      query = query.where("id < ?", cursor_param.to_i)
+    end
     restaurant_ids = query.limit(limit).pluck(:id)
-
     json_strings = Restaurant.fetch_cached_entities(restaurant_ids)
     next_cursor = restaurant_ids.last
-
     render json: %Q({"data":{"items":[#{json_strings.join(',')}],"next_cursor":#{next_cursor || "null"}}})
   end
 
   # GET /restaurants/:id
   def show
     json_string = Rails.cache.fetch("restaurant_api_show_#{params[:id]}") do
-      restaurant = Restaurant.find(params[:id])
-      # Include menu_items in the payload and pre-render to JSON string
+      restaurant = Restaurant.includes(:menu_items).find_by(id: params[:id])
+      return render json: { error: "Not found" }, status: :not_found unless restaurant
       restaurant.as_json(include: :menu_items).to_json
     end
-
     render json: json_string
   end
 
