@@ -1,29 +1,19 @@
 class MenuItemsController < ApplicationController
-  before_action :set_restaurant, only: [:index, :create]
-  before_action :set_menu_item, only: [:update, :destroy]
+  before_action :set_restaurant, only: [ :index, :create ]
+  before_action :set_menu_item, only: [ :update, :destroy ]
 
   # GET /restaurants/:restaurant_id/menu_items
   def index
-    limit = [params.fetch(:limit, 50).to_i, 100].min
-    
-    # Safely extract and sanitize the cursor to pure integers only
+    limit = [ params.fetch(:limit, 50).to_i, 100 ].min
     raw_cursor = params[:cursor].presence || params[:last_id].presence
-    cursor = raw_cursor.to_i if raw_cursor && raw_cursor.to_s.match?(/\A\d+\z/)
-    
-    category = params[:category]
-    name = params[:name]
-
+    cursor = raw_cursor.to_i if raw_cursor&.match?(/\A\d+\z/)
     query = @restaurant.menu_items.order(id: :desc)
-    query = query.where(category: category) if category.present?
-    query = query.where("name ILIKE ?", "%#{name}%") if name.present?
+    query = query.where(category: params[:category]) if params[:category].present?
+    query = query.where("name ILIKE ?", "%#{params[:name]}%") if params[:name].present?
     query = query.where("id < ?", cursor) if cursor
-    
     menu_item_ids = query.limit(limit).pluck(:id)
-
     json_strings = MenuItem.fetch_cached_entities(menu_item_ids)
-
     next_cursor = menu_item_ids.last
-
     render json: %Q({"data":{"items":[#{json_strings.join(',')}],"next_cursor":#{next_cursor || "null"}}})
   end
 
@@ -64,6 +54,6 @@ class MenuItemsController < ApplicationController
   end
 
   def menu_item_params
-    params.expect(menu_item: [:name, :description, :price, :category, :is_available])
+    params.expect(menu_item: [ :name, :description, :price, :category, :is_available ])
   end
 end
