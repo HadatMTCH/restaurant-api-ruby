@@ -4,10 +4,13 @@ class RestaurantsController < ApplicationController
   # GET /restaurants
   def index
     limit = [params.fetch(:limit, 50).to_i, 100].min
-    cursor = params[:cursor] || params[:last_id]
+    
+    # Safely extract and sanitize the cursor to pure integers only
+    raw_cursor = params[:cursor].presence || params[:last_id].presence
+    cursor = raw_cursor.to_i if raw_cursor && raw_cursor.to_s.match?(/\A\d+\z/)
 
     query = Restaurant.order(id: :desc)
-    query = query.where("id < ?", cursor) if cursor.present?
+    query = query.where("id < ?", cursor) if cursor
     restaurant_ids = query.limit(limit).pluck(:id)
 
     json_strings = Restaurant.fetch_cached_entities(restaurant_ids)

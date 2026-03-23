@@ -5,14 +5,18 @@ class MenuItemsController < ApplicationController
   # GET /restaurants/:restaurant_id/menu_items
   def index
     limit = [params.fetch(:limit, 50).to_i, 100].min
-    cursor = params[:cursor] || params[:last_id]
+    
+    # Safely extract and sanitize the cursor to pure integers only
+    raw_cursor = params[:cursor].presence || params[:last_id].presence
+    cursor = raw_cursor.to_i if raw_cursor && raw_cursor.to_s.match?(/\A\d+\z/)
+    
     category = params[:category]
     name = params[:name]
 
     query = @restaurant.menu_items.order(id: :desc)
     query = query.where(category: category) if category.present?
     query = query.where("name ILIKE ?", "%#{name}%") if name.present?
-    query = query.where("id < ?", cursor) if cursor.present?
+    query = query.where("id < ?", cursor) if cursor
     
     menu_item_ids = query.limit(limit).pluck(:id)
 
