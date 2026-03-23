@@ -2,46 +2,46 @@
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 
-puts "Cleaning up database..."
-MenuItem.destroy_all
-Restaurant.destroy_all
+require 'faker'
 
-puts "Creating Restaurants..."
+# Allow the user to specify custom counts via environment variables, or default to 50/10
+restaurants_count = ENV.fetch("RESTAURANTS_COUNT", 50).to_i
+menu_items_per_restaurant = ENV.fetch("MENU_ITEMS_PER_RESTAURANT", 10).to_i
 
-r1 = Restaurant.create!(
-  name: "Spicy Thai Authentic",
-  address: "123 Sukhumvit Road",
-  phone: "02-123-4567",
-  opening_hours: "10:00 - 22:00"
-)
+puts "Clearing existing data (this might take a moment if you have thousands of records)..."
+# Using delete_all instead of destroy_all for much faster clearing (skips callbacks)
+MenuItem.delete_all
+Restaurant.delete_all
 
-r2 = Restaurant.create!(
-  name: "Burger Joint",
-  address: "456 Silom Road",
-  phone: "02-987-6543",
-  opening_hours: "11:00 - 23:00"
-)
+puts "Seeding #{restaurants_count} restaurants, each with #{menu_items_per_restaurant} menu items..."
 
-puts "Creating Menu Items..."
+restaurants_count.times do |i|
+  restaurant = Restaurant.create!(
+    name: Faker::Restaurant.name,
+    address: Faker::Address.full_address,
+    phone: Faker::PhoneNumber.phone_number,
+    opening_hours: "08:00 - 22:00"
+  )
 
-[
-  { name: "Pad Thai", description: "Stir-fried rice noodles", price: 120.50, category: "main" },
-  { name: "Tom Yum Goong", description: "Spicy sour prawn soup", price: 180.00, category: "main" },
-  { name: "Som Tum", description: "Papaya salad", price: 80.00, category: "appetizer" },
-  { name: "Mango Sticky Rice", description: "Classic Thai dessert", price: 100.00, category: "dessert" },
-  { name: "Thai Iced Tea", description: "Sweet milk tea", price: 60.00, category: "drink" }
-].each do |item|
-  r1.menu_items.create!(item)
+  # Create an array of menu item Hashes to insert them in bulk
+  items_data = menu_items_per_restaurant.times.map do
+    {
+      restaurant_id: restaurant.id,
+      name: Faker::Food.dish,
+      description: Faker::Food.description,
+      price: Faker::Commerce.price(range: 5.0..100.0),
+      category: ["Appetizer", "Main Course", "Dessert", "Beverage", "Breakfast"].sample,
+      is_available: [true, true, true, false].sample, # 75% availability chance
+      created_at: Time.current,
+      updated_at: Time.current
+    }
+  end
+
+  # Insert securely and fast using insert_all
+  MenuItem.insert_all!(items_data) if items_data.any?
+  
+  # Print progress every 10 restaurants
+  puts "Created #{i + 1} / #{restaurants_count} restaurants..." if (i + 1) % 10 == 0
 end
 
-[
-  { name: "Classic Cheeseburger", description: "Beef patty with cheese", price: 250.00, category: "main" },
-  { name: "Bacon Burger", description: "Beef patty with bacon", price: 280.00, category: "main" },
-  { name: "French Fries", description: "Crispy potato fries", price: 100.00, category: "appetizer" },
-  { name: "Onion Rings", description: "Deep fried onion rings", price: 120.00, category: "appetizer" },
-  { name: "Chocolate Milkshake", description: "Rich chocolate flavor", price: 150.00, category: "drink" }
-].each do |item|
-  r2.menu_items.create!(item)
-end
-
-puts "Created #{Restaurant.count} restaurants and #{MenuItem.count} menu items!"
+puts "\n✅ Done! Seeded #{Restaurant.count} restaurants and #{MenuItem.count} menu items."

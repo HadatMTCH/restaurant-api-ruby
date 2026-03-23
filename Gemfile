@@ -50,3 +50,5 @@ group :development, :test do
 end
 
 gem "redis", "~> 5.4"
+
+gem "faker", "~> 3.6"
