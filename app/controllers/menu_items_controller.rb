@@ -4,20 +4,23 @@ class MenuItemsController < ApplicationController
 
   # GET /restaurants/:restaurant_id/menu_items
   def index
-    page = [params.fetch(:page, 1).to_i, 1].max
-    per_page = [params.fetch(:per, 10).to_i, 100].min
+    limit = [params.fetch(:limit, 50).to_i, 100].min
+    cursor = params[:cursor] || params[:last_id]
+    category = params[:category]
+    name = params[:name]
 
-    @menu_items = @restaurant.menu_items
+    query = @restaurant.menu_items.order(id: :desc)
+    query = query.where(category: category) if category.present?
+    query = query.where("name ILIKE ?", "%#{name}%") if name.present?
+    query = query.where("id < ?", cursor) if cursor.present?
     
-    # Filter by category if provided query parameter
-    @menu_items = @menu_items.where(category: params[:category]) if params[:category].present?
-    
-    # Filter by name matching if provided
-    @menu_items = @menu_items.where("name ILIKE ?", "%#{params[:name]}%") if params[:name].present?
+    menu_item_ids = query.limit(limit).pluck(:id)
 
-    @menu_items = @menu_items.limit(per_page).offset((page - 1) * per_page)
-    
-    render json: @menu_items
+    json_strings = MenuItem.fetch_cached_entities(menu_item_ids)
+
+    next_cursor = menu_item_ids.last
+
+    render json: %Q({"data":{"items":[#{json_strings.join(',')}],"next_cursor":#{next_cursor || "null"}}})
   end
 
   # POST /restaurants/:restaurant_id/menu_items

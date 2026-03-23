@@ -3,17 +3,28 @@ class RestaurantsController < ApplicationController
 
   # GET /restaurants
   def index
-    page = [params.fetch(:page, 1).to_i, 1].max
-    per_page = [params.fetch(:per, 10).to_i, 100].min
-    
-    @restaurants = Restaurant.limit(per_page).offset((page - 1) * per_page)
-    render json: @restaurants
+    limit = [params.fetch(:limit, 50).to_i, 100].min
+    cursor = params[:cursor] || params[:last_id]
+
+    query = Restaurant.order(id: :desc)
+    query = query.where("id < ?", cursor) if cursor.present?
+    restaurant_ids = query.limit(limit).pluck(:id)
+
+    json_strings = Restaurant.fetch_cached_entities(restaurant_ids)
+    next_cursor = restaurant_ids.last
+
+    render json: %Q({"data":{"items":[#{json_strings.join(',')}],"next_cursor":#{next_cursor || "null"}}})
   end
 
   # GET /restaurants/:id
   def show
-    # Include menu_items in the response as requested
-    render json: @restaurant.as_json(include: :menu_items)
+    json_string = Rails.cache.fetch("restaurant_api_show_#{params[:id]}") do
+      restaurant = Restaurant.find(params[:id])
+      # Include menu_items in the payload and pre-render to JSON string
+      restaurant.as_json(include: :menu_items).to_json
+    end
+    
+    render json: json_string
   end
 
   # POST /restaurants
