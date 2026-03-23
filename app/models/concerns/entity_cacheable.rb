@@ -2,7 +2,7 @@ module EntityCacheable
   extend ActiveSupport::Concern
 
   included do
-    after_commit :invalidate_entity_cache, on: [:update, :destroy]
+    after_commit :invalidate_entity_cache, on: [ :update, :destroy ]
   end
 
   def invalidate_entity_cache
@@ -17,23 +17,22 @@ module EntityCacheable
     # and returns them perfectly in the order of the source array.
     def fetch_cached_entities(ids)
       return [] if ids.blank?
-
       cache_prefix = "#{model_name.param_key}_api"
       cache_keys = ids.map { |id| "#{cache_prefix}_#{id}" }
       cached_hash = Rails.cache.read_multi(*cache_keys)
 
       missing_keys = cache_keys - cached_hash.keys
       if missing_keys.any?
-        missing_ids = missing_keys.map { |k| k.split('_').last.to_i }
-        
+        missing_ids = missing_keys.map { |k| k.split("_").last.to_i }
+
         # Hydrate from DB
         missing_records = where(id: missing_ids).index_by(&:id)
-        
+
         missing_records.each do |id, record|
           key = "#{cache_prefix}_#{id}"
-          
+
           json_string = record.to_json
-          
+
           Rails.cache.write(key, json_string)
           cached_hash[key] = json_string
         end

@@ -1,10 +1,10 @@
 class RestaurantsController < ApplicationController
-  before_action :set_restaurant, only: [:show, :update, :destroy]
+  before_action :set_restaurant, only: [ :show, :update, :destroy ]
 
   # GET /restaurants
   def index
-    limit = [params.fetch(:limit, 50).to_i, 100].min
-    
+    limit = [ params.fetch(:limit, 50).to_i, 100 ].min
+
     # Safely extract and sanitize the cursor to pure integers only
     raw_cursor = params[:cursor].presence || params[:last_id].presence
     cursor = raw_cursor.to_i if raw_cursor && raw_cursor.to_s.match?(/\A\d+\z/)
@@ -26,7 +26,7 @@ class RestaurantsController < ApplicationController
       # Include menu_items in the payload and pre-render to JSON string
       restaurant.as_json(include: :menu_items).to_json
     end
-    
+
     render json: json_string
   end
 
@@ -63,6 +63,6 @@ class RestaurantsController < ApplicationController
   end
 
   def restaurant_params
-    params.expect(restaurant: [:name, :address, :phone, :opening_hours])
+    params.expect(restaurant: [ :name, :address, :phone, :opening_hours ])
   end
 end
