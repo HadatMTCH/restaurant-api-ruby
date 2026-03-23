@@ -1,5 +1,5 @@
 class MenuItem < ApplicationRecord
-  belongs_to :restaurant
+  belongs_to :restaurant, touch: true
 
   validates :name, :price, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
