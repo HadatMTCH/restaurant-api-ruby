@@ -14,34 +14,37 @@ MenuItem.delete_all
 Restaurant.delete_all
 
 puts "Seeding #{restaurants_count} restaurants, each with #{menu_items_per_restaurant} menu items..."
+ActiveRecord::Base.transaction do
+  restaurants_count.times do |i|
+    random_time = Faker::Time.backward(days: 30)
+    restaurant = Restaurant.create!(
+      name: Faker::Restaurant.name,
+      address: Faker::Address.full_address,
+      phone: Faker::PhoneNumber.phone_number,
+      opening_hours: "08:00 - 22:00",
+      created_at: random_time,
+      updated_at: random_time
+    )
 
-restaurants_count.times do |i|
-  restaurant = Restaurant.create!(
-    name: Faker::Restaurant.name,
-    address: Faker::Address.full_address,
-    phone: Faker::PhoneNumber.phone_number,
-    opening_hours: "08:00 - 22:00"
-  )
+    # Create an array of menu item Hashes to insert them in bulk
+    items_data = menu_items_per_restaurant.times.map do
+      {
+        restaurant_id: restaurant.id,
+        name: Faker::Food.dish,
+        description: Faker::Food.description,
+        price: Faker::Commerce.price(range: 5.0..100.0),
+        category: [ "Appetizer", "Main Course", "Dessert", "Beverage", "Breakfast" ].sample,
+        is_available: [ true, true, true, false ].sample, # 75% availability chance
+        created_at: random_time,
+        updated_at: random_time
+      }
+    end
 
-  # Create an array of menu item Hashes to insert them in bulk
-  items_data = menu_items_per_restaurant.times.map do
-    {
-      restaurant_id: restaurant.id,
-      name: Faker::Food.dish,
-      description: Faker::Food.description,
-      price: Faker::Commerce.price(range: 5.0..100.0),
-      category: ["Appetizer", "Main Course", "Dessert", "Beverage", "Breakfast"].sample,
-      is_available: [true, true, true, false].sample, # 75% availability chance
-      created_at: Time.current,
-      updated_at: Time.current
-    }
+    # Insert securely and fast using insert_all
+    MenuItem.insert_all!(items_data) if items_data.any?
+
+    # Print progress every 10 restaurants
+    puts "Created #{i + 1} / #{restaurants_count} restaurants..." if (i + 1) % 10 == 0
   end
-
-  # Insert securely and fast using insert_all
-  MenuItem.insert_all!(items_data) if items_data.any?
-  
-  # Print progress every 10 restaurants
-  puts "Created #{i + 1} / #{restaurants_count} restaurants..." if (i + 1) % 10 == 0
 end
-
 puts "\n✅ Done! Seeded #{Restaurant.count} restaurants and #{MenuItem.count} menu items."
