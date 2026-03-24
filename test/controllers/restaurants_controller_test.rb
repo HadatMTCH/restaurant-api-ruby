@@ -29,6 +29,27 @@ class RestaurantsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, data2["items"].length
   end
 
+  test "should filter restaurants by name using ILIKE" do
+    get restaurants_url, params: { name: "Pizza" }, headers: @headers
+
+    assert_response :success
+    data = JSON.parse(response.body)["data"]
+
+    assert data["items"].length > 0
+    data["items"].each do |item|
+      assert_match(/Pizza/i, item["name"])
+    end
+  end
+
+  test "should return empty array when no restaurants found or random absurd search" do
+    get restaurants_url, params: { name: "loremipsumdolorsitametrestaurant" }, headers: @headers
+
+    assert_response :success
+    data = JSON.parse(response.body)["data"]
+
+    assert data["items"].length == 0
+  end
+
   test "should show restaurant with menu items included" do
     get restaurant_url(@restaurant), headers: @headers
     assert_response :success
