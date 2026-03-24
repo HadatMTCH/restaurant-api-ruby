@@ -12,6 +12,15 @@ puts "Clearing existing data (this might take a moment if you have thousands of 
 # Using delete_all instead of destroy_all for much faster clearing (skips callbacks)
 MenuItem.delete_all
 Restaurant.delete_all
+User.delete_all
+
+puts "Creating test user..."
+User.create!(
+  email: 'test@example.com',
+  password: 'password123',
+  api_key: 'test_api_key_123'
+)
+puts "✅ Test user created: email 'test@example.com', password 'password123', API Key 'test_api_key_123'"
 
 puts "Seeding #{restaurants_count} restaurants, each with #{menu_items_per_restaurant} menu items..."
 ActiveRecord::Base.transaction do
