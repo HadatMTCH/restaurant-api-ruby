@@ -21,7 +21,7 @@ class ApplicationController < ActionController::API
       end
     end
 
-    render json: { error: "Unauthorized" }, status: :unauthorized unless @current_user
+    render json: { message: "Unauthorized" }, status: :unauthorized unless @current_user
   end
 
   def jwt_decode(token)
@@ -30,14 +30,14 @@ class ApplicationController < ActionController::API
   end
 
   def record_not_found(exception)
-    render json: { error: exception.message }, status: :not_found
+    render json: { message: "Data not found", errors: exception.message  }, status: :not_found
   end
 
   def record_invalid(exception)
-    render json: { error: "Validation failed", messages: exception.record.errors.full_messages }, status: :unprocessable_entity
+    render json: { message: "Validation failed", errors: exception.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   def parameter_missing(exception)
-    render json: { error: exception.message }, status: :bad_request
+    render json: { message: exception.message }, status: :bad_request
   end
 end
