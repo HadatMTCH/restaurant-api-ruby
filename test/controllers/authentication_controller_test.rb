@@ -26,4 +26,15 @@ class AuthenticationControllerTest < ActionDispatch::IntegrationTest
     delete logout_url
     assert_response :unauthorized
   end
+
+  test "should actually revoke the token on logout (JTI rotation)" do
+    valid_headers = auth_headers_for(@user)
+
+    delete logout_url, headers: valid_headers
+    assert_response :success
+
+    delete logout_url, headers: valid_headers
+
+    assert_response :unauthorized
+  end
 end
