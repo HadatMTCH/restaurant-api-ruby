@@ -1,0 +1,23 @@
+menu_item_1:
+  restaurant: restaurant_1
+  name: "Cheese Pizza"
+  description: "Delicious cheese pizza"
+  price: 9.99
+  category: "Main Course"
+  is_available: true
+
+menu_item_2:
+  restaurant: restaurant_1
+  name: "Pepperoni Pizza"
+  description: "Classic pepperoni"
+  price: 11.99
+  category: "Main Course"
+  is_available: true
+
+menu_item_3:
+  restaurant: restaurant_2
+  name: "Burger"
+  description: "A nice burger"
+  price: 8.99
+  category: "Main Course"
+  is_available: true
