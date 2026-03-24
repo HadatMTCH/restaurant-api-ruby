@@ -1,0 +1,14 @@
+hadatskywalker@hadat-h81mds2 
+---------------------------- 
+OS: Ubuntu 24.04.4 LTS x86_64 
+Host: H81M-DS2 
+Kernel: 6.17.0-14-generic 
+Uptime: 21 days, 5 hours, 26 mins 
+Packages: 2140 (dpkg), 9 (flatpak), 11 (snap) 
+Shell: bash 5.2.21 
+Resolution: 1024x768 
+Terminal: node 
+CPU: Intel i5-4590 (4) @ 3.700GHz 
+GPU: Intel HD Graphics 
+Memory: 4027MiB / 6864MiB 
+

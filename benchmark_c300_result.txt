@@ -1,0 +1,49 @@
+C:\Users\Hadat Skywalker\Documents>hey -z 30s -c 300 -H "Authorization: test_api_key_123" "http://192.168.18.65:3000/restaurants?limit=50" | tee benchmark_results_c300.txt
+
+Summary:
+  Total:        31.2540 secs
+  Slowest:      1.9753 secs
+  Fastest:      0.0950 secs
+  Average:      1.0845 secs
+  Requests/sec: 270.7813
+
+  Total data:   98492394 bytes
+  Size/request: 11638 bytes
+
+Response time histogram:
+  0.095 [1]     |
+  0.283 [44]    |
+  0.471 [43]    |
+  0.659 [53]    |■
+  0.847 [200]   |■■
+  1.035 [2876]  |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.223 [3877]  |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.411 [964]   |■■■■■■■■■■
+  1.599 [350]   |■■■■
+  1.787 [41]    |
+  1.975 [14]    |
+
+
+Latency distribution:
+  10%% in 0.9139 secs
+  25%% in 0.9838 secs
+  50%% in 1.0734 secs
+  75%% in 1.1656 secs
+  90%% in 1.3083 secs
+  95%% in 1.4062 secs
+  99%% in 1.5643 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:   0.0003 secs, 0.0000 secs, 0.0184 secs
+  DNS-lookup:   0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:    0.0000 secs, 0.0000 secs, 0.0027 secs
+  resp wait:    1.0838 secs, 0.0924 secs, 1.9752 secs
+  resp read:    0.0003 secs, 0.0000 secs, 0.0299 secs
+
+Status code distribution:
+  [200] 8463 responses
+
+
+
+
+C:\Users\Hadat Skywalker\Documents>
