@@ -7,8 +7,11 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+  post "login", to: "authentication#login"
+  delete "logout", to: "authentication#logout"
+
   resources :restaurants do
-    resources :menu_items, only: [:index, :create]
+    resources :menu_items, only: [ :index, :create ]
   end
-  resources :menu_items, only: [:update, :destroy]
+  resources :menu_items, only: [ :update, :destroy ]
 end
