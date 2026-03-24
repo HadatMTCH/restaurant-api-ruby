@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_24_053124) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_24_070744) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
 
   create_table "menu_items", force: :cascade do |t|
     t.string "category"
@@ -33,6 +34,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_24_053124) do
     t.string "opening_hours"
     t.string "phone"
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_restaurants_on_name", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "users", force: :cascade do |t|
