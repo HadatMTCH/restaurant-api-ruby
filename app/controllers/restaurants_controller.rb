@@ -6,6 +6,9 @@ class RestaurantsController < ApplicationController
     limit = [ params.fetch(:limit, 50).to_i, 100 ].min
     cursor_param = params[:cursor] || params[:last_id]
     query = Restaurant.order(id: :desc)
+
+    query = query.where("name ILIKE ?", "%#{params[:name]}%") if params[:name].present?
+
     if cursor_param.present?
       query = query.where("id < ?", cursor_param.to_i)
     end
