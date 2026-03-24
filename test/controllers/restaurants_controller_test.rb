@@ -29,11 +29,13 @@ class RestaurantsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, data2["items"].length
   end
 
-  test "should show restaurant" do
+  test "should show restaurant with menu items included" do
     get restaurant_url(@restaurant), headers: @headers
     assert_response :success
     json = JSON.parse(response.body)
+
     assert_equal @restaurant.id, json["id"]
+    assert_not_nil json["menu_items"]
   end
 
   test "should create restaurant" do
