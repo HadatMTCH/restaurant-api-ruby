@@ -1,0 +1,256 @@
+{
+  "info": {
+    "name": "Restaurant API",
+    "description": "Complete API documentation covering authentication, restaurant browsing, and menu item management.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "test_api_key_123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "test@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "password123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": ["{{base_url}}"],
+              "path": ["logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurants",
+      "item": [
+        {
+          "name": "List Restaurants",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/restaurants?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants"],
+              "query": [
+                { "key": "limit", "value": "50", "description": "Amount of items to return" },
+                { "key": "cursor", "value": "123", "description": "Cursor pointing to ID for iteration pagination", "disabled": true },
+                { "key": "name", "value": "Pizza", "description": "Filter strictly via Trigram similarity on ILIKE", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Restaurant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/restaurants/1",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Restaurant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurant\": {\n    \"name\": \"New Restaurant\",\n    \"address\": \"123 Food Street\",\n    \"phone\": \"555-0000\",\n    \"opening_hours\": \"10:00 - 22:00\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/restaurants",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants"]
+            }
+          }
+        },
+        {
+          "name": "Update Restaurant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurant\": {\n    \"name\": \"Updated Restaurant Name\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/restaurants/1",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Restaurant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/restaurants/1",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menu Items",
+      "item": [
+        {
+          "name": "List Menu Items",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/restaurants/1/menu_items?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "1", "menu_items"],
+              "query": [
+                { "key": "limit", "value": "50" },
+                { "key": "category", "value": "Main Course", "disabled": true },
+                { "key": "name", "value": "Pizza", "disabled": true },
+                { "key": "cursor", "value": "123", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Menu Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"menu_item\": {\n    \"name\": \"Pepperoni Pizza\",\n    \"description\": \"Hot and spicy\",\n    \"price\": 12.99,\n    \"category\": \"Main Course\",\n    \"is_available\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/restaurants/1/menu_items",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "1", "menu_items"]
+            }
+          }
+        },
+        {
+          "name": "Update Menu Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"menu_item\": {\n    \"price\": 14.99\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/menu_items/1",
+              "host": ["{{base_url}}"],
+              "path": ["menu_items", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Menu Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu_items/1",
+              "host": ["{{base_url}}"],
+              "path": ["menu_items", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
