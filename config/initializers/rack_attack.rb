@@ -1,4 +1,8 @@
 class Rack::Attack
+  safelist("allow-benchmark-machine") do |req|
+    req.ip == "192.168.18.80"
+  end
+
   # Rate limit to 100 requests per minute per IP
   throttle("req/ip", limit: 100, period: 1.minute) do |req|
     req.ip
