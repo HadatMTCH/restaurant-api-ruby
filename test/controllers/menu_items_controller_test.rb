@@ -15,6 +15,30 @@ class MenuItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, data["items"].length
   end
 
+  # filter search is conditional, depends on the fixture data,
+  # because this test is mean to be correct for the search functionality
+  # if the fixture data changes, this test will fail
+  test "should filter menu items by name using ILIKE" do
+    get restaurant_menu_items_url(@restaurant), params: { name: "pep" }, headers: @headers
+
+    assert_response :success
+    data = JSON.parse(response.body)["data"]
+
+    assert data["items"].length > 0
+    data["items"].each do |item|
+      assert_match /pep/i, item["name"]
+    end
+  end
+
+  test "should return empty array when no menu items found or random absurd search" do
+    get restaurant_menu_items_url(@restaurant), params: { name: "loremipsumdolorsitametmenu" }, headers: @headers
+
+    assert_response :success
+    data = JSON.parse(response.body)["data"]
+
+    assert data["items"].length == 0
+  end
+
   test "should create menu item" do
     assert_difference("MenuItem.count") do
       post restaurant_menu_items_url(@restaurant), params: { menu_item: { name: "Salad", description: "Fresh", price: 5.99, category: "Appetizer", is_available: true } }, headers: @headers
